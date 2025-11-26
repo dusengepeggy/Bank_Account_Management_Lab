@@ -62,6 +62,6 @@ public abstract class Customer {
         Customer.customerCounter = customerCounter;
     }
     public abstract void displayCustomerDetails();
-    public abstract void getCustomerType();
+    public abstract String getCustomerType();
 
 }

@@ -1,16 +1,14 @@
-public class SavingsAccount extends Account {
-    private double interestRate ;
-    private double minimumBalance;
+public class CheckingAccount extends Account {
+    private double overdraftLimit, monthlyFee;
 
-    public SavingsAccount(String accountNumber, Customer customer, double balance, String status) {
+    public CheckingAccount(String accountNumber, Customer customer, double balance, String status) {
         super(accountNumber, customer, balance, status);
-        this.interestRate = 3.5/100;
-        this.minimumBalance = 500;
+        this.overdraftLimit = 1000;
+        this.monthlyFee = 10;
     }
     @Override
     String getAccountType() {
-        return "Savings";
-
+        return "Checking";
     }
     @Override
     void displayAccountDetail() {
@@ -21,21 +19,20 @@ public class SavingsAccount extends Account {
         System.out.println("Account status: " + getStatus());
         System.out.println("Account Type: " + getAccountType());
         System.out.println("Account Balance: " + getBalance() );
-        System.out.println("Interest rate: "+ interestRate);
-        System.out.println("Minimum balance: "+ minimumBalance);
+        System.out.println("Overdraft limit: " + overdraftLimit);
+        System.out.println("Monthly fee: " + monthlyFee);
     }
-
     @Override
-    void withdraw(double amount) {
-        if (getBalance()<minimumBalance) {
-            System.out.println("Not enough balance");
+    void withdraw (double amount){
+        if (getBalance()-amount>overdraftLimit) {
+            System.out.println("You cannot withdraw");
         }
         else {
             super.withdraw(amount);
         }
     }
-    double calculateInterest(){
+    void applyMontlhyFee(){
         double balance = getBalance();
-        return balance*interestRate;
+        setBalance(balance-=monthlyFee);
     }
 }
