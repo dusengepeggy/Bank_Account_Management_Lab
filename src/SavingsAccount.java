@@ -26,13 +26,15 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    void withdraw(double amount) {
-        if (getBalance()<minimumBalance) {
-            System.out.println("Not enough balance");
+    public boolean withdraw(double amount) {
+        if (amount <= 0) return false;
+        double newBalance = this.getBalance()- amount;
+        if (newBalance < minimumBalance) {
+            System.out.println("Withdrawal denied: savings account must maintain minimum balance of " + minimumBalance);
+            return false;
         }
-        else {
-            super.withdraw(amount);
-        }
+        setBalance(newBalance);
+        return true;
     }
     double calculateInterest(){
         double balance = getBalance();

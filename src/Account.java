@@ -1,12 +1,9 @@
-public abstract class Account {
+public abstract class Account implements Transactable {
     private String accountNumber;
     private Customer customer;
     private double balance;
     private String status;
     static int accountCounter;
-
-    public Account() {
-    }
 
     public Account( Customer customer, double balance, String status) {
         this.accountNumber = "ACC" + String.format("%03d",accountCounter+1) ;
@@ -58,12 +55,24 @@ public abstract class Account {
 
     abstract void displayAccountDetail();
     abstract String getAccountType();
-
     void deposit ( double amount ){
         balance+=amount;
     }
-    void withdraw ( double amount ){
-        balance-=amount;
+    abstract boolean withdraw ( double amount );
+    @Override
+    public boolean processTransaction(double amount, String type) {
+        if ("DEPOSIT".equalsIgnoreCase(type)) {
+            try {
+                deposit(amount);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+            return true;
+        } else if ("WITHDRAWAL".equalsIgnoreCase(type)) {
+            return withdraw(amount);
+        }
+        return false;
     }
+
 
 }

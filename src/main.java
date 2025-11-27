@@ -133,7 +133,7 @@ public class main {
         accountManager.viewAllAccounts();
 
         System.out.println("\nTotal Accounts: " + accountManager.getAccountCount());
-        System.out.println("Total Bank Balance: " + accountManager.getTotalBalance());
+        System.out.println("Total Bank Balance: $" + accountManager.getTotalBalance());
 
         pressEnterToContinue();
     }
@@ -170,16 +170,7 @@ public class main {
         sc.nextLine();
         String type = (transType == 1) ? "DEPOSIT" : "WITHDRAWAL";
         double previousBalance = account.getBalance();
-        double newBalance;
-
-        // Validate transaction
-        if (transType == 1) {
-            account.deposit(amount);
-            newBalance = account.getBalance();
-        } else {
-            account.withdraw(amount);
-            newBalance = account.getBalance();
-        }
+        double newBalance = previousBalance-amount ;
 
         // Show confirmation
         System.out.println("\n" + "-".repeat(50));
@@ -199,15 +190,16 @@ public class main {
         String confirm = sc.nextLine();
 
         if (confirm.equalsIgnoreCase("Y")) {
-            transactionManager.addTransaction(transaction);
-            System.out.println("\n✓ Transaction completed successfully!");
-        } else {
-            // Rollback
-            if (transType == 1) {
-                account.withdraw(amount);
-            } else {
-                account.deposit(amount);
+            boolean success = account.processTransaction(amount,type);
+            if (success){
+                transactionManager.addTransaction(transaction);
+                System.out.println("\n✓ Transaction completed successfully!");
             }
+            else {
+                System.out.println("Transaction failed. Check balance/limits.");
+            }
+
+        } else {
             System.out.println("\n✗ Transaction cancelled.");
         }
 
@@ -233,9 +225,10 @@ public class main {
         System.out.println("\nAccount: " + accountNumber + " - " + account.getCustomer().getName());
         System.out.println("Account Type: " + account.getAccountType());
         System.out.println("Current Balance: " + account.getBalance());
-
+        System.out.println("TXN ID  | DATE/TIME   |    TYPE      |  AMOUNT     | BALANCE   ");
         transactionManager.viewTransactionsByAccounts(accountNumber);
 
         pressEnterToContinue();
     }
+
 }

@@ -18,20 +18,22 @@ public class CheckingAccount extends Account {
         System.out.println("Account holder name: " + getCustomer().getName());
         System.out.println("Account status: " + getStatus());
         System.out.println("Account Type: " + getAccountType());
-        System.out.println("Account Balance: " + getBalance() );
-        System.out.println("Overdraft limit: " + overdraftLimit);
+        System.out.println("Account Balance: $" + getBalance() );
+        System.out.println("Overdraft limit: $" + overdraftLimit);
         System.out.println("Monthly fee: " + monthlyFee);
     }
     @Override
-    void withdraw (double amount){
-        if (getBalance()-amount<-overdraftLimit) {
-            System.out.println("You cannot withdraw");
-            return;
+    public boolean withdraw(double amount) {
+        if (amount <= 0) return false;
+        double newBalance = getBalance() - amount;
+        if (newBalance < -overdraftLimit) {
+            System.out.println("Withdrawal denied: exceeds overdraft limit of " + overdraftLimit);
+            return false;
         }
-        else {
-            super.withdraw(amount);
-        }
+        setBalance(newBalance);
+        return true;
     }
+
     void applyMontlhyFee(){
         double balance = getBalance();
         setBalance(balance-=monthlyFee);

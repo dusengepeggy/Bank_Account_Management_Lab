@@ -36,29 +36,36 @@ public class TransactionManager {
         for (Transaction transaction: transactionsByAccountId ){
             transaction.displayTransactionDetails();
         }
+        double deposit = calculateDeposits(accountNumber);
+        double withdrawal = calculateWithdrawal(accountNumber);
+        System.out.println("Total transactions: " + transactionsByAccountId.length);
+        System.out.println("Total deposits: " + deposit );
+        System.out.println("Total Witdrawals: "+ withdrawal );
+        System.out.println("Net change: "+ (deposit-withdrawal));
     }
 
-    void calculateDeposits ( String accountNumber ) {
+    double calculateDeposits ( String accountNumber ) {
         double depositSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction: transactionsByAccountId ){
-            if(transaction.getType().equals("Deposit")){
+            if(transaction.getType().equalsIgnoreCase("Deposit")){
                 depositSum+= transaction.getAmount();
             }
 
         }
-
+        return depositSum;
     }
 
-    void calculateWithdrawal ( String accountNumber ) {
+    double calculateWithdrawal ( String accountNumber ) {
         double withdrawnSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction: transactionsByAccountId ){
-            if(transaction.getType().equals("Withdrawal")){
+            if(transaction.getType().equalsIgnoreCase("Withdrawal")){
                 withdrawnSum += transaction.getAmount();
             }
 
         }
+        return withdrawnSum;
 
     }
     int getTransactionCount () {
