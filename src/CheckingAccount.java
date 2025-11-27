@@ -1,8 +1,8 @@
 public class CheckingAccount extends Account {
     private double overdraftLimit, monthlyFee;
 
-    public CheckingAccount(String accountNumber, Customer customer, double balance, String status) {
-        super(accountNumber, customer, balance, status);
+    public CheckingAccount(Customer customer, double balance, String status) {
+        super( customer, balance, status);
         this.overdraftLimit = 1000;
         this.monthlyFee = 10;
     }
@@ -24,8 +24,9 @@ public class CheckingAccount extends Account {
     }
     @Override
     void withdraw (double amount){
-        if (getBalance()-amount>overdraftLimit) {
+        if (getBalance()-amount<-overdraftLimit) {
             System.out.println("You cannot withdraw");
+            return;
         }
         else {
             super.withdraw(amount);

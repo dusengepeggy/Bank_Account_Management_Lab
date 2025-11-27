@@ -2,8 +2,8 @@ public class SavingsAccount extends Account {
     private double interestRate ;
     private double minimumBalance;
 
-    public SavingsAccount(String accountNumber, Customer customer, double balance, String status) {
-        super(accountNumber, customer, balance, status);
+    public SavingsAccount(Customer customer, double balance, String status) {
+        super( customer, balance, status);
         this.interestRate = 3.5/100;
         this.minimumBalance = 500;
     }

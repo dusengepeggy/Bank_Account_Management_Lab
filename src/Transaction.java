@@ -44,6 +44,7 @@ public class Transaction {
     }
 
     void displayTransactionDetails(){
+        System.out.println(transactionId + "  |  " + timestamp + "  |  " + type + "  |  " + amount+ "  |  " + balanceAfter );
 
     }
 }

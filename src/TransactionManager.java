@@ -9,13 +9,30 @@ public class TransactionManager {
         transactionCount++;
 
     }
-    Transaction[] filterById (String id){
-        return Arrays.stream(transactions)
-                .filter(ele-> ele.getAccountNumber()
-                        .equals(id)).toArray(Transaction[]::new);
+    Transaction[] filterById(String accountNumber) {
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            return new Transaction[0];
+        }
+
+        Transaction[] temp = new Transaction[transactionCount];
+        int count = 0;
+
+        for (int i = 0; i < transactionCount; i++) {
+            if (transactions[i].getAccountNumber().equals(accountNumber)) {
+                temp[count] = transactions[i];
+                count++;
+            }
+        }
+
+        return temp;
     }
     void viewTransactionsByAccounts ( String accountNumber ) {
         Transaction[] transactionsByAccountId = filterById( accountNumber );
+        if (transactionsByAccountId.length == 0 ){
+            System.out.println("No transactions yet");
+            return;
+
+        }
         for (Transaction transaction: transactionsByAccountId ){
             transaction.displayTransactionDetails();
         }

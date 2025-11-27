@@ -7,29 +7,26 @@ public class AccountManager {
        accounts[accountCount]=newAccount;
        accountCount++;
    }
-   void findAccount (String accountNumber){
+   Account findAccount (String accountNumber){
        for (Account account:accounts) {
            if (account.getAccountNumber().equals(accountNumber)){
-               System.out.println("Account details");
-               account.displayAccountDetail();
-               break;
+               return account;
            }
 
        }
-       System.out.println("There was no Account found with the specified number");
-
+       return null;
    }
 
    void viewAllAccounts (){
-       for (Account account:accounts){
-           account.displayAccountDetail();
+       for (int i=0 ; i<accountCount;i++){
+           accounts[i].displayAccountDetail();
        }
    }
 
    double getTotalBalance () {
        double sum = 0;
-       for (Account account:accounts){
-           sum += account.getBalance();
+       for (int i=0 ; i<accountCount;i++){
+           sum += accounts[i].getBalance();
        }
        return sum;
    }

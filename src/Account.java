@@ -8,11 +8,12 @@ public abstract class Account {
     public Account() {
     }
 
-    public Account(String accountNumber, Customer customer, double balance, String status) {
-        this.accountNumber = accountNumber;
+    public Account( Customer customer, double balance, String status) {
+        this.accountNumber = "ACC" + String.format("%03d",accountCounter+1) ;
         this.customer = customer;
         this.balance = balance;
         this.status = status;
+        accountCounter++;
     }
 
     public String getAccountNumber() {

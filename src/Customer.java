@@ -6,12 +6,13 @@ public abstract class Customer {
     private  String address;
     static int customerCounter;
 
-    public Customer(String customerId, String name, int age, String contact, String address) {
-        this.customerId = customerId;
+    public Customer( String name, int age, String contact, String address) {
+        this.customerId = "CUS"+ String.format("%30d",customerCounter) ;
         this.name = name;
         this.age = age;
         this.contact = contact;
         this.address = address;
+        customerCounter++;
     }
 
     public String getCustomerId() {
