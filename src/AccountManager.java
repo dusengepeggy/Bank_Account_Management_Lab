@@ -8,9 +8,10 @@ public class AccountManager {
        accountCount++;
    }
    Account findAccount (String accountNumber){
-       for (Account account:accounts) {
-           if (account.getAccountNumber().equals(accountNumber)){
-               return account;
+
+       for (int i = 0; i < accountCount ; i++) {
+           if (accounts[i].getAccountNumber().equals(accountNumber)){
+               return accounts[i];
            }
 
        }

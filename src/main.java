@@ -4,6 +4,8 @@ public class main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
     private static Scanner sc = new Scanner(System.in);
+
+    //...........................Sample customer data........................................
     private static void initializeSampleData() {
         Customer c1 = new RegularCustomer("John Smith", 35, "+1-555-0001", "123 Main St");
         Account a1 = new SavingsAccount(c1, 5250.00,"Active");
@@ -25,6 +27,8 @@ public class main {
         Account a5 = new SavingsAccount(c5, 25300.00,"Active");
         accountManager.addAccount(a5);
     }
+
+    //...........................main method..................
     public static void main (String[] args){
         initializeSampleData();
         while (true) {
@@ -64,36 +68,72 @@ public class main {
         }
 
     }
+
+
+    //........reusable press enter to continue.........................
     private static void pressEnterToContinue() {
         System.out.println("\nPress Enter to continue...");
         sc.nextLine();
     }
+    // ------------------- Input Validators -------------------
+    private static int readInt(String prompt, int min, int max) {
+        int value;
+        while (true) {
+            System.out.print(prompt);
+            if (sc.hasNextInt()) {
+                value = sc.nextInt();
+                sc.nextLine();
+                if (value >= min && value <= max) return value;
+                System.out.println("Input must be between " + min + " and " + max + "!");
+            } else {
+                System.out.println("Invalid input! Enter a number.");
+                sc.nextLine();
+            }
+        }
+    }
 
+    private static double readDouble(String prompt, double min) {
+        double value;
+        while (true) {
+            System.out.print(prompt);
+            if (sc.hasNextDouble()) {
+                value = sc.nextDouble();
+                sc.nextLine();
+                if (value >= min) return value;
+                System.out.println("Amount must be at least $" + min);
+            } else {
+                System.out.println("Invalid input! Enter a number.");
+                sc.nextLine();
+            }
+        }
+    }
+
+    private static String readNonEmptyString(String prompt) {
+        String input;
+        while (true) {
+            System.out.print(prompt);
+            input = sc.nextLine().trim();
+            if (!input.isEmpty()) return input;
+            System.out.println("Input cannot be empty!");
+        }
+    }
+
+    //......................menu actions................................
     private static void createAccount() {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("ACCOUNT CREATION");
         System.out.println("=".repeat(50));
         System.out.println();
 
-        System.out.print("Enter customer name: ");
-        String name = sc.nextLine();
-
-        System.out.print("Enter customer age: ");
-        int age = sc.nextInt();
-        sc.nextLine();
-
-        System.out.print("Enter customer contact: ");
-        String contact = sc.nextLine();
-
-        System.out.print("Enter customer address: ");
-        String address = sc.nextLine();
+        String name = readNonEmptyString("Enter customer name: ");
+        int age = readInt("Enter customer age: ", 1, 120);
+        String contact = readNonEmptyString("Enter customer contact: ");
+        String address = readNonEmptyString("Enter customer address: ");
 
         System.out.println("\nCustomer type:");
         System.out.println("1. Regular Customer (Standard banking services)");
         System.out.println("2. Premium Customer (Enhanced benefits, min balance $10,000)");
-        System.out.print("\nSelect type (1-2): ");
-        int customerType = sc.nextInt();
-        sc.nextLine();
+        int customerType = readInt("\nSelect type (1-Regular, 2-Premium): ", 1, 2);
 
         Customer customer;
         if (customerType == 1) {
@@ -105,11 +145,10 @@ public class main {
         System.out.println("\nAccount type:");
         System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
         System.out.println("2. Checking Account (Overdraft: $1,000, Monthly Fee: $10)");
-        System.out.print("\nSelect type (1-2): ");
-        int accountType = sc.nextInt();
-        sc.nextLine();
-        System.out.print("\nEnter initial deposit amount: $");
-        double initialDeposit = sc.nextDouble();
+        int accountType = readInt("\nSelect account type (1-Savings, 2-Checking): ", 1, 2);
+
+        double minDeposit = (customerType==1) ? 500 : (customerType == 2 && accountType == 1) ? 10000 : 0;
+        double initialDeposit = readDouble("Enter initial deposit amount: $", minDeposit);
 
         Account account;
         if (accountType == 1) {
@@ -144,10 +183,9 @@ public class main {
         System.out.println("=".repeat(50));
         System.out.println();
 
-        System.out.print("Enter Account Number: ");
-        String accountNumber = sc.nextLine();
-
+        String accountNumber = readNonEmptyString("Enter Account Number: ");
         Account account = accountManager.findAccount(accountNumber);
+
         if (account == null) {
             System.out.println("\n✗ Account not found!");
             pressEnterToContinue();
@@ -162,15 +200,22 @@ public class main {
         System.out.println("\nTransaction type:");
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal");
-        System.out.print("\nSelect type (1-2): ");
-        int transType = sc.nextInt();
-
-        System.out.print("\nEnter amount: $");
-        double amount = sc.nextDouble();
+        int transType = readInt("Select Type: ", 1, 2);
+        double amount;
+        if (transType == 1) {
+            amount = readDouble("Enter amount to deposit: $", 0);
+        } else {
+            amount = readDouble("Enter amount to withdraw: $", 0);
+            if (amount > account.getBalance()) {
+                System.out.println("Insufficient balance! Transaction cancelled.");
+                pressEnterToContinue();
+                return;
+            }
+        }
         sc.nextLine();
         String type = (transType == 1) ? "DEPOSIT" : "WITHDRAWAL";
         double previousBalance = account.getBalance();
-        double newBalance = previousBalance-amount ;
+        double newBalance =  (transType == 1) ? (previousBalance+amount) : (previousBalance-amount) ;
 
         // Show confirmation
         System.out.println("\n" + "-".repeat(50));
@@ -213,7 +258,7 @@ public class main {
         System.out.println();
 
         System.out.print("Enter Account Number: ");
-        String accountNumber = sc.nextLine();
+        String accountNumber = readNonEmptyString("Enter Account Number: ");
 
         Account account = accountManager.findAccount(accountNumber);
         if (account == null) {

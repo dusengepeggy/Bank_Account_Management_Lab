@@ -17,7 +17,7 @@ public class SavingsAccount extends Account {
         System.out.println("Account details");
         System.out.println("____________________");
         System.out.println("Account number: " + getAccountNumber());
-        System.out.println("Account holder name: " + getCustomer().getName());
+        System.out.println("Account holder name: " + getCustomer().getName() + " ("+ getCustomer().getCustomerType() +")");
         System.out.println("Account status: " + getStatus());
         System.out.println("Account Type: " + getAccountType());
         System.out.println("Account Balance: " + getBalance() );
