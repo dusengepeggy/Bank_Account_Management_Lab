@@ -1,3 +1,5 @@
+package models;
+
 public abstract class Account implements Transactable {
     private String accountNumber;
     private Customer customer;
@@ -53,8 +55,8 @@ public abstract class Account implements Transactable {
         Account.accountCounter = accountCounter;
     }
 
-    abstract void displayAccountDetail();
-    abstract String getAccountType();
+    abstract public void displayAccountDetail();
+    abstract public String getAccountType();
     void deposit ( double amount ){
         balance+=amount;
     }

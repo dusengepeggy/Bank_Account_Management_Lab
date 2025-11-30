@@ -1,3 +1,5 @@
+package models;
+
 public class CheckingAccount extends Account {
     private double overdraftLimit, monthlyFee;
 
@@ -7,18 +9,18 @@ public class CheckingAccount extends Account {
         this.monthlyFee = 10;
     }
     @Override
-    String getAccountType() {
+    public String getAccountType() {
         return "Checking";
     }
     @Override
-    void displayAccountDetail() {
-        System.out.println("Account details");
+    public void displayAccountDetail() {
+        System.out.println("models.Account details");
         System.out.println("____________________");
-        System.out.println("Account number: " + getAccountNumber());
-        System.out.println("Account holder name: " + getCustomer().getName()+ " ("+ getCustomer().getCustomerType() +")");
-        System.out.println("Account status: " + getStatus());
-        System.out.println("Account Type: " + getAccountType());
-        System.out.println("Account Balance: $" + getBalance() );
+        System.out.println("models.Account number: " + getAccountNumber());
+        System.out.println("models.Account holder name: " + getCustomer().getName()+ " ("+ getCustomer().getCustomerType() +")");
+        System.out.println("models.Account status: " + getStatus());
+        System.out.println("models.Account Type: " + getAccountType());
+        System.out.println("models.Account Balance: $" + getBalance() );
         System.out.println("Overdraft limit: $" + overdraftLimit);
         System.out.println("Monthly fee: " + monthlyFee);
     }

@@ -1,10 +1,12 @@
-import java.util.Arrays;
+package services;
+
+import models.Transaction;
 
 public class TransactionManager {
     private Transaction[] transactions = new Transaction[200];
     private int transactionCount;
 
-    void addTransaction (Transaction transaction){
+    public void addTransaction (Transaction transaction){
         transactions[transactionCount]=transaction;
         transactionCount++;
 
@@ -26,7 +28,7 @@ public class TransactionManager {
 
         return temp;
     }
-    void viewTransactionsByAccounts ( String accountNumber ) {
+    public void viewTransactionsByAccounts ( String accountNumber ) {
         Transaction[] transactionsByAccountId = filterById( accountNumber );
         if (transactionsByAccountId.length == 0 ){
             System.out.println("No transactions yet");
@@ -44,7 +46,7 @@ public class TransactionManager {
         System.out.println("Net change: "+ (deposit-withdrawal));
     }
 
-    double calculateDeposits ( String accountNumber ) {
+    public double calculateDeposits ( String accountNumber ) {
         double depositSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction: transactionsByAccountId ){
@@ -56,7 +58,7 @@ public class TransactionManager {
         return depositSum;
     }
 
-    double calculateWithdrawal ( String accountNumber ) {
+    public double calculateWithdrawal ( String accountNumber ) {
         double withdrawnSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction: transactionsByAccountId ){
@@ -68,7 +70,7 @@ public class TransactionManager {
         return withdrawnSum;
 
     }
-    int getTransactionCount () {
+    public int getTransactionCount () {
         return transactionCount;
     }
 
