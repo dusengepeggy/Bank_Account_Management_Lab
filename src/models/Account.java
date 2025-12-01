@@ -1,5 +1,9 @@
 package models;
 
+import models.exceptions.InsufficientFundsException;
+import models.exceptions.InvalidAmountException;
+import models.exceptions.OverdraftExceededException;
+
 /**
  * Abstract base class representing a bank account that implements transaction capabilities.
  * Provides common account functionality and defines abstract methods for account-specific behavior.
@@ -132,8 +136,12 @@ public abstract class Account implements Transactable {
      * Deposits the specified amount into the account.
      *
      * @param amount the amount to deposit
+     * @throws InvalidAmountException if the amount is negative or zero
      */
-    void deposit(double amount) {
+    void deposit(double amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException(amount);
+        }
         updateBalance(amount);
     }
 
@@ -142,23 +150,40 @@ public abstract class Account implements Transactable {
      * Implementation is provided by subclasses with account-specific rules.
      *
      * @param amount the amount to withdraw
-     * @return true if withdrawal is successful, false otherwise
+     * @throws InvalidAmountException if the amount is negative or zero
+     * @throws InsufficientFundsException if there are insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit
      */
-    abstract boolean withdraw(double amount);
+    abstract void withdraw(double amount) throws InvalidAmountException, 
+            models.exceptions.InsufficientFundsException, 
+            models.exceptions.OverdraftExceededException;
 
     /**
      * Processes a transaction (deposit or withdrawal) on this account.
      *
      * @param amount the transaction amount
      * @param type the transaction type ("DEPOSIT" or "WITHDRAWAL")
-     * @return true if the transaction was successful, false otherwise
+     * @throws InvalidAmountException if the amount is invalid
+     * @throws InsufficientFundsException if there are insufficient funds for withdrawal
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit
      */
     @Override
-    public boolean processTransaction(double amount, String type) {
+    public boolean processTransaction(double amount, String type) throws InvalidAmountException,InsufficientFundsException,OverdraftExceededException {
         if ("DEPOSIT".equalsIgnoreCase(type)) {
-            return processDeposit(amount);
+            try {
+                processDeposit(amount);
+                return true;
+            } catch (InvalidAmountException e) {
+                throw e;
+            }
         } else if ("WITHDRAWAL".equalsIgnoreCase(type)) {
-            return processWithdrawal(amount);
+            try {
+                processWithdrawal(amount);
+                return true;
+            } catch (InvalidAmountException | InsufficientFundsException
+                    | OverdraftExceededException e) {
+                throw e;
+            }
         }
         return false;
     }
@@ -186,24 +211,23 @@ public abstract class Account implements Transactable {
      * Processes a deposit transaction.
      *
      * @param amount the amount to deposit
-     * @return true if deposit is successful, false otherwise
+     * @throws InvalidAmountException if the amount is invalid
      */
-    private boolean processDeposit(double amount) {
-        try {
-            deposit(amount);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+    private void processDeposit(double amount) throws InvalidAmountException {
+        deposit(amount);
     }
 
     /**
      * Processes a withdrawal transaction.
      *
      * @param amount the amount to withdraw
-     * @return true if withdrawal is successful, false otherwise
+     * @throws InvalidAmountException if the amount is invalid
+     * @throws InsufficientFundsException if there are insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit
      */
-    private boolean processWithdrawal(double amount) {
-        return withdraw(amount);
+    private void processWithdrawal(double amount) throws InvalidAmountException,
+            models.exceptions.InsufficientFundsException,
+            models.exceptions.OverdraftExceededException {
+        withdraw(amount);
     }
 }

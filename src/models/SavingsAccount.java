@@ -1,5 +1,8 @@
 package models;
 
+import models.exceptions.InsufficientFundsException;
+import models.exceptions.InvalidAmountException;
+
 public class SavingsAccount extends Account {
     private double interestRate ;
     private double minimumBalance;
@@ -28,15 +31,15 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public boolean withdraw(double amount) {
-        if (amount <= 0) return false;
-        double newBalance = this.getBalance()- amount;
+    public void withdraw(double amount) throws InvalidAmountException, InsufficientFundsException {
+        if (amount <= 0) {
+            throw new InvalidAmountException(amount);
+        }
+        double newBalance = this.getBalance() - amount;
         if (newBalance < minimumBalance) {
-            System.out.println("Withdrawal denied: savings account must maintain minimum balance of " + minimumBalance);
-            return false;
+            throw new InsufficientFundsException(getBalance(), amount, "The minimum balance should be $500");
         }
         setBalance(newBalance);
-        return true;
     }
     double calculateInterest(){
         double balance = getBalance();

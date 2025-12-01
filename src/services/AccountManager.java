@@ -1,6 +1,7 @@
 package services;
 
 import models.Account;
+import models.exceptions.InvalidAccountException;
 
 public class AccountManager {
    private Account[] accounts = new Account[50];
@@ -9,15 +10,20 @@ public class AccountManager {
        accounts[accountCount]=newAccount;
        accountCount++;
    }
-   public Account findAccount (String accountNumber){
-
-       for (int i = 0; i < accountCount ; i++) {
-           if (accounts[i].getAccountNumber().equals(accountNumber)){
+   /**
+    * Finds an account by account number.
+    *
+    * @param accountNumber the account number to search for
+    * @return the account if found
+    * @throws InvalidAccountException if the account is not found
+    */
+   public Account findAccount(String accountNumber) throws InvalidAccountException {
+       for (int i = 0; i < accountCount; i++) {
+           if (accounts[i].getAccountNumber().equals(accountNumber)) {
                return accounts[i];
            }
-
        }
-       return null;
+       throw new InvalidAccountException(accountNumber);
    }
 
    public void viewAllAccounts (){

@@ -49,7 +49,20 @@ public class TransactionManager {
             }
         }
 
-        return temp;
+        return trimArray(temp, count);
+    }
+
+    /**
+     * Trims an array to the specified size.
+     *
+     * @param array the array to trim
+     * @param size the target size
+     * @return a new array of the specified size
+     */
+    private Transaction[] trimArray(Transaction[] array, int size) {
+        Transaction[] result = new Transaction[size];
+        System.arraycopy(array, 0, result, 0, size);
+        return result;
     }
 
     

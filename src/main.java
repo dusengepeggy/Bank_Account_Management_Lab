@@ -1,4 +1,5 @@
 import models.*;
+import models.exceptions.*;
 import services.AccountManager;
 import services.TransactionManager;
 import utils.ValidationUtils;
@@ -141,75 +142,68 @@ public class main {
         pressEnterToContinue();
     }
 
-    private static void processTransaction() {
+    private static void processTransaction ()  {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("PROCESS TRANSACTION");
         System.out.println("=".repeat(50));
         System.out.println();
 
-        String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
-        Account account = accountManager.findAccount(accountNumber);
+        try {
+            String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
+            Account account = accountManager.findAccount(accountNumber);
 
-        if (account == null) {
-            System.out.println("\n✗ Account not found!");
-            pressEnterToContinue();
-            return;
-        }
+            System.out.println("\nAccount Details:");
+            System.out.println("Customer: " + account.getCustomer().getName());
+            System.out.println("Account Type: " + account.getAccountType());
+            System.out.println("Current Balance: $" + account.getBalance());
 
-        System.out.println("\nAccount Details:");
-        System.out.println("Customer: " + account.getCustomer().getName());
-        System.out.println("Account Type: " + account.getAccountType());
-        System.out.println("Current Balance: " + account.getBalance());
+            System.out.println("\nTransaction type:");
+            System.out.println("1. Deposit");
+            System.out.println("2. Withdrawal");
+            int transType = validation.readInt("Select Type: ", 1, 2);
+            double amount = validation.readDouble(
+                    (transType == 1) ? "Enter amount to deposit: $" : "Enter amount to withdraw: $", 0);
 
-        System.out.println("\nTransaction type:");
-        System.out.println("1. Deposit");
-        System.out.println("2. Withdrawal");
-        int transType = validation.readInt("Select Type: ", 1, 2);
-        double amount;
-        if (transType == 1) {
-            amount = validation.readDouble("Enter amount to deposit: $", 0);
-        } else {
-            amount = validation.readDouble("Enter amount to withdraw: $", 0);
-            if (amount > account.getBalance()) {
-                System.out.println("Insufficient balance! Transaction cancelled.");
-                pressEnterToContinue();
-                return;
+            sc.nextLine();
+            String type = (transType == 1) ? "DEPOSIT" : "WITHDRAWAL";
+            double previousBalance = account.getBalance();
+
+            // Show confirmation
+            System.out.println("\n" + "-".repeat(50));
+            System.out.println("TRANSACTION CONFIRMATION");
+            System.out.println("-".repeat(50));
+            System.out.println("Account: " + accountNumber);
+            System.out.println("Type: " + type);
+            System.out.println("Amount: $" + amount);
+            System.out.println("Current Balance: $" + previousBalance);
+
+            System.out.print("\nConfirm transaction? (Y/N): ");
+            String confirm = sc.nextLine();
+
+            if (confirm.equalsIgnoreCase("Y")) {
+                try {
+                    boolean success = account.processTransaction(amount, type);
+                    if (success) {
+                        double newBalance = account.getBalance();
+                        Transaction transaction = new Transaction(accountNumber, type, amount, newBalance);
+                        transactionManager.addTransaction(transaction);
+                        System.out.println("\n✓ Transaction completed successfully!");
+                        System.out.println("New Balance: $" + newBalance);
+                    } else {
+                        System.out.println("\n✗ Transaction failed. Please try again.");
+                    }
+                } catch (InvalidAmountException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                } catch (InsufficientFundsException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                } catch (OverdraftExceededException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                }
+            } else {
+                System.out.println("\n✗ Transaction cancelled.");
             }
-        }
-        sc.nextLine();
-        String type = (transType == 1) ? "DEPOSIT" : "WITHDRAWAL";
-        double previousBalance = account.getBalance();
-        double newBalance =  (transType == 1) ? (previousBalance+amount) : (previousBalance-amount) ;
-
-        // Show confirmation
-        System.out.println("\n" + "-".repeat(50));
-        System.out.println("TRANSACTION CONFIRMATION");
-        System.out.println("-".repeat(50));
-
-        Transaction transaction = new Transaction(accountNumber, type, amount, newBalance);
-        System.out.println("\n.Transaction ID: " + transaction.getTransactionId());
-        System.out.println("Account: " + accountNumber);
-        System.out.println("Type: " + type);
-        System.out.println("Amount: " + amount);
-        System.out.println("Previous Balance: " + previousBalance);
-        System.out.println("New Balance: " + newBalance);
-        System.out.println("Date/Time: " + transaction.getTimestamp());
-
-        System.out.print("\nConfirm transaction? (Y/N): ");
-        String confirm = sc.nextLine();
-
-        if (confirm.equalsIgnoreCase("Y")) {
-            boolean success = account.processTransaction(amount,type);
-            if (success){
-                transactionManager.addTransaction(transaction);
-                System.out.println("\n✓ Transaction completed successfully!");
-            }
-            else {
-                System.out.println("Transaction failed. Check balance/limits.");
-            }
-
-        } else {
-            System.out.println("\n✗ Transaction cancelled.");
+        } catch (InvalidAccountException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
         }
 
         pressEnterToContinue();
@@ -220,20 +214,19 @@ public class main {
         System.out.println("VIEW TRANSACTION HISTORY");
         System.out.println("=".repeat(50));
         System.out.println();
-        String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
 
-        Account account = accountManager.findAccount(accountNumber);
-        if (account == null) {
-            System.out.println("\n✗ Account not found!");
-            pressEnterToContinue();
-            return;
+        try {
+            String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
+            Account account = accountManager.findAccount(accountNumber);
+
+            System.out.println("\nAccount: " + accountNumber + " - " + account.getCustomer().getName());
+            System.out.println("Account Type: " + account.getAccountType());
+            System.out.println("Current Balance: $" + account.getBalance());
+            System.out.println("TXN ID  | DATE/TIME   |    TYPE      |  AMOUNT     | BALANCE   ");
+            transactionManager.viewTransactionsByAccounts(accountNumber);
+        } catch (InvalidAccountException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
         }
-
-        System.out.println("\nAccount: " + accountNumber + " - " + account.getCustomer().getName());
-        System.out.println("Account Type: " + account.getAccountType());
-        System.out.println("Current Balance: " + account.getBalance());
-        System.out.println("TXN ID  | DATE/TIME   |    TYPE      |  AMOUNT     | BALANCE   ");
-        transactionManager.viewTransactionsByAccounts(accountNumber);
 
         pressEnterToContinue();
     }
