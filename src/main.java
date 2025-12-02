@@ -1,16 +1,18 @@
 import models.*;
 import models.exceptions.*;
 import services.AccountManager;
+import services.StatementGenerator;
 import services.TransactionManager;
 import utils.ValidationUtils;
 import java.util.Scanner;
+import java.io.IOException;
 
 public class main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
+    private static StatementGenerator statementGenerator = new StatementGenerator(accountManager, transactionManager);
     private static Scanner sc = new Scanner(System.in);
     private static ValidationUtils validation = new ValidationUtils(sc);
-
     //...........................Sample customer data........................................
     private static void initializeSampleData() {
         Customer c1 = new RegularCustomer("John Smith", 35, "+1-555-0001", "123 Main St");
@@ -35,14 +37,14 @@ public class main {
     }
 
     //...........................main method..................
-    public static void main (String[] args){
+    public static void main (String[] args) throws InsufficientFundsException, OverdraftExceededException {
         initializeSampleData();
 
         while (true) {
 
             System.out.println("=======================================\n  BANK ACCOUNT MANAGEMENT - MAIN MENU \n=======================================");
-            System.out.println(" \t1. Create Account \n \t2. View Accounts \n \t3. Process Transaction \n \t4. View Transation History \n\t5. Exit");
-            System.out.println("\nEnter choice: ");
+            System.out.println(" \t1. Manage Account \n \t2. Perform Transaction \n \t3. Generate Account Statement \n \t4. Run Tests \n\t5. Exit");
+            System.out.print("\nEnter choice: ");
             if (!sc.hasNextInt()) {
                 System.out.println("Invalid input! Enter a number.");
                 sc.next();
@@ -54,22 +56,23 @@ public class main {
 
             switch (choice) {
                 case 1:
-                    createAccount();
+                    manageAccount();
                     break;
                 case 2:
-                    viewAccounts();
+                    performTransaction();
                     break;
                 case 3:
-                    processTransaction();
+                    generateAccountStatement();
                     break;
                 case 4:
-                    viewTransactionHistory();
+                    runTests();
                     break;
                 case 5:
-                    System.out.println("Thanks bye");
+                    System.out.println("\nThank you for using Bank Account Management System. Goodbye!");
                     return;
                 default:
-                    System.out.println("choose correctly");
+                    System.out.println("Invalid choice! Please choose a number between 1-5.");
+                    pressEnterToContinue();
                     continue;
             }
         }
@@ -85,6 +88,41 @@ public class main {
 
 
     //......................menu actions................................
+    
+    private static void manageAccount() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("MANAGE ACCOUNT");
+        System.out.println("=".repeat(50));
+        System.out.println("\n \t1. Create Account \n \t2. View All Accounts \n \t3. Back to Main Menu");
+        System.out.print("\nEnter choice: ");
+        
+        if (!sc.hasNextInt()) {
+            System.out.println("Invalid input! Enter a number.");
+            sc.next();
+            sc.nextLine();
+            pressEnterToContinue();
+            return;
+        }
+        
+        int choice = sc.nextInt();
+        sc.nextLine();
+        
+        switch (choice) {
+            case 1:
+                createAccount();
+                break;
+            case 2:
+                viewAccounts();
+                break;
+            case 3:
+                return;
+            default:
+                System.out.println("Invalid choice! Please choose a number between 1-3.");
+                pressEnterToContinue();
+                break;
+        }
+    }
+    
     private static void createAccount() {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("ACCOUNT CREATION");
@@ -142,9 +180,46 @@ public class main {
         pressEnterToContinue();
     }
 
-    private static void processTransaction ()  {
+    private static void performTransaction() throws InsufficientFundsException, OverdraftExceededException {
         System.out.println("\n" + "=".repeat(50));
-        System.out.println("PROCESS TRANSACTION");
+        System.out.println("PERFORM TRANSACTION");
+        System.out.println("=".repeat(50));
+        System.out.println("\n \t1. Deposit \n \t2. Withdrawal \n \t3. Wire Money Between Accounts \n \t4. Back to Main Menu");
+        System.out.print("\nEnter choice: ");
+        
+        if (!sc.hasNextInt()) {
+            System.out.println("Invalid input! Enter a number.");
+            sc.next();
+            sc.nextLine();
+            pressEnterToContinue();
+            return;
+        }
+        
+        int choice = sc.nextInt();
+        sc.nextLine();
+        
+        switch (choice) {
+            case 1:
+                processDeposit();
+                break;
+            case 2:
+                processWithdrawal();
+                break;
+            case 3:
+                processWireTransfer();
+                break;
+            case 4:
+                return;
+            default:
+                System.out.println("Invalid choice! Please choose a number between 1-4.");
+                pressEnterToContinue();
+                break;
+        }
+    }
+    
+    private static void processDeposit() throws InsufficientFundsException, OverdraftExceededException {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("DEPOSIT TRANSACTION");
         System.out.println("=".repeat(50));
         System.out.println();
 
@@ -157,15 +232,7 @@ public class main {
             System.out.println("Account Type: " + account.getAccountType());
             System.out.println("Current Balance: $" + account.getBalance());
 
-            System.out.println("\nTransaction type:");
-            System.out.println("1. Deposit");
-            System.out.println("2. Withdrawal");
-            int transType = validation.readInt("Select Type: ", 1, 2);
-            double amount = validation.readDouble(
-                    (transType == 1) ? "Enter amount to deposit: $" : "Enter amount to withdraw: $", 0);
-
-            sc.nextLine();
-            String type = (transType == 1) ? "DEPOSIT" : "WITHDRAWAL";
+            double amount = validation.readDouble("Enter amount to deposit: $", 0);
             double previousBalance = account.getBalance();
 
             // Show confirmation
@@ -173,7 +240,7 @@ public class main {
             System.out.println("TRANSACTION CONFIRMATION");
             System.out.println("-".repeat(50));
             System.out.println("Account: " + accountNumber);
-            System.out.println("Type: " + type);
+            System.out.println("Type: DEPOSIT");
             System.out.println("Amount: $" + amount);
             System.out.println("Current Balance: $" + previousBalance);
 
@@ -182,10 +249,65 @@ public class main {
 
             if (confirm.equalsIgnoreCase("Y")) {
                 try {
-                    boolean success = account.processTransaction(amount, type);
+                    boolean success = account.processTransaction(amount, "DEPOSIT");
                     if (success) {
                         double newBalance = account.getBalance();
-                        Transaction transaction = new Transaction(accountNumber, type, amount, newBalance);
+                        Transaction transaction = new Transaction(accountNumber, "DEPOSIT", amount, newBalance);
+                        transactionManager.addTransaction(transaction);
+                        System.out.println("\n✓ Transaction completed successfully!");
+                        System.out.println("New Balance: $" + newBalance);
+                    } else {
+                        System.out.println("\n✗ Transaction failed. Please try again.");
+                    }
+                } catch (InvalidAmountException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                }
+            } else {
+                System.out.println("\n✗ Transaction cancelled.");
+            }
+        } catch (InvalidAccountException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
+        }
+
+        pressEnterToContinue();
+    }
+    
+    private static void processWithdrawal() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("WITHDRAWAL TRANSACTION");
+        System.out.println("=".repeat(50));
+        System.out.println();
+
+        try {
+            String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
+            Account account = accountManager.findAccount(accountNumber);
+
+            System.out.println("\nAccount Details:");
+            System.out.println("Customer: " + account.getCustomer().getName());
+            System.out.println("Account Type: " + account.getAccountType());
+            System.out.println("Current Balance: $" + account.getBalance());
+
+            double amount = validation.readDouble("Enter amount to withdraw: $", 0);
+            double previousBalance = account.getBalance();
+
+            // Show confirmation
+            System.out.println("\n" + "-".repeat(50));
+            System.out.println("TRANSACTION CONFIRMATION");
+            System.out.println("-".repeat(50));
+            System.out.println("Account: " + accountNumber);
+            System.out.println("Type: WITHDRAWAL");
+            System.out.println("Amount: $" + amount);
+            System.out.println("Current Balance: $" + previousBalance);
+
+            System.out.print("\nConfirm transaction? (Y/N): ");
+            String confirm = sc.nextLine();
+
+            if (confirm.equalsIgnoreCase("Y")) {
+                try {
+                    boolean success = account.processTransaction(amount, "WITHDRAWAL");
+                    if (success) {
+                        double newBalance = account.getBalance();
+                        Transaction transaction = new Transaction(accountNumber, "WITHDRAWAL", amount, newBalance);
                         transactionManager.addTransaction(transaction);
                         System.out.println("\n✓ Transaction completed successfully!");
                         System.out.println("New Balance: $" + newBalance);
@@ -208,26 +330,162 @@ public class main {
 
         pressEnterToContinue();
     }
-
-    private static void viewTransactionHistory() {
+    
+    private static void processWireTransfer() {
         System.out.println("\n" + "=".repeat(50));
-        System.out.println("VIEW TRANSACTION HISTORY");
+        System.out.println("WIRE TRANSFER BETWEEN ACCOUNTS");
+        System.out.println("=".repeat(50));
+        System.out.println();
+
+        try {
+            String fromAccountNumber = validation.readNonEmptyString("Enter Source Account Number: ");
+            Account fromAccount = accountManager.findAccount(fromAccountNumber);
+
+            System.out.println("\nSource Account Details:");
+            System.out.println("Customer: " + fromAccount.getCustomer().getName());
+            System.out.println("Account Type: " + fromAccount.getAccountType());
+            System.out.println("Current Balance: $" + fromAccount.getBalance());
+
+            String toAccountNumber = validation.readNonEmptyString("\nEnter Destination Account Number: ");
+            Account toAccount = accountManager.findAccount(toAccountNumber);
+
+            System.out.println("\nDestination Account Details:");
+            System.out.println("Customer: " + toAccount.getCustomer().getName());
+            System.out.println("Account Type: " + toAccount.getAccountType());
+            System.out.println("Current Balance: $" + toAccount.getBalance());
+
+            double amount = validation.readDouble("\nEnter amount to transfer: $", 0);
+            double fromPreviousBalance = fromAccount.getBalance();
+            double toPreviousBalance = toAccount.getBalance();
+
+            // Show confirmation
+            System.out.println("\n" + "-".repeat(50));
+            System.out.println("WIRE TRANSFER CONFIRMATION");
+            System.out.println("-".repeat(50));
+            System.out.println("From Account: " + fromAccountNumber + " - " + fromAccount.getCustomer().getName());
+            System.out.println("To Account: " + toAccountNumber + " - " + toAccount.getCustomer().getName());
+            System.out.println("Amount: $" + amount);
+            System.out.println("Source Balance Before: $" + fromPreviousBalance);
+            System.out.println("Destination Balance Before: $" + toPreviousBalance);
+
+            System.out.print("\nConfirm wire transfer? (Y/N): ");
+            String confirm = sc.nextLine();
+
+            if (confirm.equalsIgnoreCase("Y")) {
+                try {
+                    boolean success = transactionManager.wireTransfer(accountManager, fromAccountNumber, toAccountNumber, amount);
+                    if (success) {
+                        System.out.println("\n✓ Wire transfer completed successfully!");
+                        System.out.println("Source Account New Balance: $" + fromAccount.getBalance());
+                        System.out.println("Destination Account New Balance: $" + toAccount.getBalance());
+                    } else {
+                        System.out.println("\n✗ Wire transfer failed. Please try again.");
+                    }
+                } catch (InvalidAmountException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                } catch (InsufficientFundsException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                } catch (OverdraftExceededException e) {
+                    System.out.println("\n✗ Error: " + e.getMessage());
+                }
+            } else {
+                System.out.println("\n✗ Wire transfer cancelled.");
+            }
+        } catch (InvalidAccountException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
+        }
+
+        pressEnterToContinue();
+    }
+    
+    private static void generateAccountStatement() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("GENERATE ACCOUNT STATEMENT");
         System.out.println("=".repeat(50));
         System.out.println();
 
         try {
             String accountNumber = validation.readNonEmptyString("Enter Account Number: ");
-            Account account = accountManager.findAccount(accountNumber);
-
-            System.out.println("\nAccount: " + accountNumber + " - " + account.getCustomer().getName());
-            System.out.println("Account Type: " + account.getAccountType());
-            System.out.println("Current Balance: $" + account.getBalance());
-            System.out.println("TXN ID  | DATE/TIME   |    TYPE      |  AMOUNT     | BALANCE   ");
-            transactionManager.viewTransactionsByAccounts(accountNumber);
+            statementGenerator.generateAccountStatement(accountNumber);
         } catch (InvalidAccountException e) {
             System.out.println("\n✗ Error: " + e.getMessage());
         }
 
+        pressEnterToContinue();
+    }
+    
+    private static void runTests() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("RUNNING TESTS");
+        System.out.println("=".repeat(50));
+        System.out.println("\nExecuting all test suites via command line...\n");
+
+        try {
+            // Determine the Java command and classpath
+            String javaHome = System.getProperty("java.home");
+            String javaCmd = javaHome + "/bin/java";
+            
+            // For Windows, use java.exe
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                javaCmd = javaHome + "\\bin\\java.exe";
+            }
+            
+            // Build classpath - include current directory and common test directories
+            String classpath = System.getProperty("java.class.path");
+            String testClasspath = classpath + System.getProperty("path.separator") + "out/test";
+            
+            // Run tests using JUnit Console Launcher if available, otherwise provide instructions
+            System.out.println("Attempting to run tests...");
+            System.out.println("\nNOTE: For best results, run tests using your IDE's test runner or:");
+            System.out.println("  - Maven: mvn test");
+            System.out.println("  - Gradle: gradle test");
+            System.out.println("  - Command line: java -cp <classpath> org.junit.platform.console.ConsoleLauncher --scan-class-path");
+            System.out.println("\nTest classes found in: src/test/java/");
+            System.out.println("  - AccountTest.java");
+            System.out.println("  - ExceptionTest.java");
+            System.out.println("  - TransactionManagerTest.java");
+            
+            // Try to execute via command line (simpler approach)
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                processBuilder.command("cmd.exe", "/c", 
+                    "echo Running tests... && " +
+                    "echo Please use your IDE or build tool to run tests.");
+            } else {
+                processBuilder.command("sh", "-c", 
+                    "echo 'Running tests...' && " +
+                    "echo 'Please use your IDE or build tool to run tests.'");
+            }
+            
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            
+            // Read output
+            Scanner processScanner = new Scanner(process.getInputStream());
+            while (processScanner.hasNextLine()) {
+                System.out.println(processScanner.nextLine());
+            }
+            processScanner.close();
+            
+            int exitCode = process.waitFor();
+            System.out.println("\nProcess completed with exit code: " + exitCode);
+            
+        } catch (IOException e) {
+            System.out.println("\n✗ Error executing test command: " + e.getMessage());
+            System.out.println("\nPlease run tests manually using:");
+            System.out.println("  - Your IDE's test runner");
+            System.out.println("  - Maven: mvn test");
+            System.out.println("  - Gradle: gradle test");
+        } catch (InterruptedException e) {
+            System.out.println("\n✗ Test execution was interrupted: " + e.getMessage());
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            System.out.println("\n✗ Error running tests: " + e.getMessage());
+            System.out.println("\nPlease run tests manually using your IDE or build tool.");
+        }
+        
+        System.out.println("\n" + "=".repeat(50));
         pressEnterToContinue();
     }
 

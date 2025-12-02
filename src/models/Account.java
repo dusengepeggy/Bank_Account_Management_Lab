@@ -138,7 +138,7 @@ public abstract class Account implements Transactable {
      * @param amount the amount to deposit
      * @throws InvalidAmountException if the amount is negative or zero
      */
-    void deposit(double amount) throws InvalidAmountException {
+    public void deposit(double amount) throws InvalidAmountException {
         if (amount <= 0) {
             throw new InvalidAmountException(amount);
         }
