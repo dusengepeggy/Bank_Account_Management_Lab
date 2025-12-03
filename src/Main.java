@@ -5,9 +5,12 @@ import services.StatementGenerator;
 import services.TransactionManager;
 import utils.ValidationUtils;
 import java.util.Scanner;
-import java.io.IOException;
 
-public class main {
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
+
+public class Main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
     private static StatementGenerator statementGenerator = new StatementGenerator(accountManager, transactionManager);
@@ -420,71 +423,6 @@ public class main {
         System.out.println("=".repeat(50));
         System.out.println("\nExecuting all test suites via command line...\n");
 
-        try {
-            // Determine the Java command and classpath
-            String javaHome = System.getProperty("java.home");
-            String javaCmd = javaHome + "/bin/java";
-            
-            // For Windows, use java.exe
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                javaCmd = javaHome + "\\bin\\java.exe";
-            }
-            
-            // Build classpath - include current directory and common test directories
-            String classpath = System.getProperty("java.class.path");
-            String testClasspath = classpath + System.getProperty("path.separator") + "out/test";
-            
-            // Run tests using JUnit Console Launcher if available, otherwise provide instructions
-            System.out.println("Attempting to run tests...");
-            System.out.println("\nNOTE: For best results, run tests using your IDE's test runner or:");
-            System.out.println("  - Maven: mvn test");
-            System.out.println("  - Gradle: gradle test");
-            System.out.println("  - Command line: java -cp <classpath> org.junit.platform.console.ConsoleLauncher --scan-class-path");
-            System.out.println("\nTest classes found in: src/test/java/");
-            System.out.println("  - AccountTest.java");
-            System.out.println("  - ExceptionTest.java");
-            System.out.println("  - TransactionManagerTest.java");
-            
-            // Try to execute via command line (simpler approach)
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                processBuilder.command("cmd.exe", "/c", 
-                    "echo Running tests... && " +
-                    "echo Please use your IDE or build tool to run tests.");
-            } else {
-                processBuilder.command("sh", "-c", 
-                    "echo 'Running tests...' && " +
-                    "echo 'Please use your IDE or build tool to run tests.'");
-            }
-            
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-            
-            // Read output
-            Scanner processScanner = new Scanner(process.getInputStream());
-            while (processScanner.hasNextLine()) {
-                System.out.println(processScanner.nextLine());
-            }
-            processScanner.close();
-            
-            int exitCode = process.waitFor();
-            System.out.println("\nProcess completed with exit code: " + exitCode);
-            
-        } catch (IOException e) {
-            System.out.println("\n✗ Error executing test command: " + e.getMessage());
-            System.out.println("\nPlease run tests manually using:");
-            System.out.println("  - Your IDE's test runner");
-            System.out.println("  - Maven: mvn test");
-            System.out.println("  - Gradle: gradle test");
-        } catch (InterruptedException e) {
-            System.out.println("\n✗ Test execution was interrupted: " + e.getMessage());
-            Thread.currentThread().interrupt();
-        } catch (Exception e) {
-            System.out.println("\n✗ Error running tests: " + e.getMessage());
-            System.out.println("\nPlease run tests manually using your IDE or build tool.");
-        }
-        
         System.out.println("\n" + "=".repeat(50));
         pressEnterToContinue();
     }
