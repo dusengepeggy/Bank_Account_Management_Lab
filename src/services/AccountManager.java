@@ -19,7 +19,7 @@ public class AccountManager {
     */
    public Account findAccount(String accountNumber) throws InvalidAccountException {
        for (int i = 0; i < accountCount; i++) {
-           if (accounts[i].getAccountNumber().equals(accountNumber)) {
+           if (accounts[i].getAccountNumber().equalsIgnoreCase(accountNumber)) {
                return accounts[i];
            }
        }

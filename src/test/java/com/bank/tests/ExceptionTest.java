@@ -1,3 +1,4 @@
+package com.bank.tests;
 
 import models.Account;
 import models.CheckingAccount;

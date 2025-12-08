@@ -1,15 +1,19 @@
+import com.bank.tests.ExceptionTest;
+import com.bank.tests.TransactionManagerTest;
 import models.*;
 import models.exceptions.*;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.launcher.*;
 import services.AccountManager;
 import services.StatementGenerator;
 import services.TransactionManager;
 import utils.ValidationUtils;
 import java.util.Scanner;
 
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
-
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import com.bank.tests.AccountTest;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 public class Main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
@@ -85,7 +89,7 @@ public class Main {
 
     //........reusable press enter to continue.........................
     private static void pressEnterToContinue() {
-        System.out.println("\nPress Enter to continue...");
+        System.out.print("\nPress Enter to continue...");
         sc.nextLine();
     }
 
@@ -422,7 +426,30 @@ public class Main {
         System.out.println("RUNNING TESTS");
         System.out.println("=".repeat(50));
         System.out.println("\nExecuting all test suites via command line...\n");
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request().selectors(
+                selectClass(AccountTest.class),
+                selectClass(ExceptionTest.class),
+                selectClass(TransactionManagerTest.class)
+        ).build();
+        Launcher launcher = LauncherFactory.create();
+        TestExecutionListener listener = new TestExecutionListener() {
 
+            @Override
+            public void executionStarted(TestIdentifier testIdentifier) {
+                if (testIdentifier.isTest()) {
+                    System.out.print("▶ Running: " + testIdentifier.getDisplayName() + "....................");
+                }
+            }
+
+            @Override
+            public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+                if (testIdentifier.isTest()) {
+                    System.out.println("(" + testExecutionResult.getStatus()+")");
+                }
+            }
+        };
+        launcher.registerTestExecutionListeners(listener);
+        launcher.execute(request);
         System.out.println("\n" + "=".repeat(50));
         pressEnterToContinue();
     }
