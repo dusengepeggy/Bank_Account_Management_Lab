@@ -1,4 +1,4 @@
-# **Bank Account Management System**
+# **Bank models.Account Management System**
 
 This is a simple Java-based console application for managing bank accounts, performing transactions, and viewing transaction history. It includes input validation, account types, customer types, and a transaction logging system.
 
@@ -6,30 +6,30 @@ This is a simple Java-based console application for managing bank accounts, perf
 
 ## 📌 **Features**
 
-### **✔ Account Management**
+### **✔ models.Account Management**
 
 * Create new accounts
 * View all accounts
 * Load sample accounts on startup
 
-### **✔ Customer Types**
+### **✔ models.Customer Types**
 
-* Regular Customer
-* Premium Customer (min deposit & extra benefits)
+* Regular models.Customer
+* Premium models.Customer (min deposit & extra benefits)
 
-### **✔ Account Types**
+### **✔ models.Account Types**
 
-* Savings Account
-* Checking Account
+* Savings models.Account
+* Checking models.Account
 
-### **✔ Transaction System**
+### **✔ models.Transaction System**
 
 * Deposit
 * Withdrawal
 * Validates insufficient balance
 * Records all transactions
 
-### **✔ Transaction History**
+### **✔ models.Transaction History**
 
 * View all transactions for a specific account
 
@@ -79,15 +79,15 @@ Your project folder must include:
 ```
 /src
    Main.java
-   Account.java
-   AccountManager.java
-   Customer.java
-   RegularCustomer.java
-   PremiumCustomer.java
-   SavingsAccount.java
-   CheckingAccount.java
-   Transaction.java
-   TransactionManager.java
+   models.Account.java
+   services.AccountManager.java
+   models.Customer.java
+   models.RegularCustomer.java
+   models.PremiumCustomer.java
+   models.SavingsAccount.java
+   models.CheckingAccount.java
+   models.Transaction.java
+   services.TransactionManager.java
 ```
 
 Make sure each class is inside the same package (or remove package declarations).
@@ -118,16 +118,16 @@ After successful compilation:
 java Main
 ```
 
-The main menu should appear:
+The Main menu should appear:
 
 ```
 =======================================
   BANK ACCOUNT MANAGEMENT - MAIN MENU 
 =======================================
-    1. Create Account
+    1. Create models.Account
     2. View Accounts
-    3. Process Transaction
-    4. View Transaction History
+    3. Process models.Transaction
+    4. View models.Transaction History
     5. Exit
 Enter choice:
 ```

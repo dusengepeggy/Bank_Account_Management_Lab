@@ -25,3 +25,8 @@ git checkout main
 git pull origin main 
 git checkout -b feature/documentation
 git cherry-pick 4e40730075f055d609c8532ef6a72d23115a0165
+git add .
+git commit -m "ft: git workflow documentation"
+git pull origin main
+
+
