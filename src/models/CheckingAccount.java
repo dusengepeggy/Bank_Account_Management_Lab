@@ -1,5 +1,8 @@
 package models;
 
+import models.exceptions.InvalidAmountException;
+import models.exceptions.OverdraftExceededException;
+
 public class CheckingAccount extends Account {
     private double overdraftLimit, monthlyFee;
 
@@ -25,15 +28,15 @@ public class CheckingAccount extends Account {
         System.out.println("Monthly fee: " + monthlyFee);
     }
     @Override
-    public boolean withdraw(double amount) {
-        if (amount <= 0) return false;
+    public void withdraw(double amount) throws InvalidAmountException, OverdraftExceededException {
+        if (amount <= 0) {
+            throw new InvalidAmountException(amount);
+        }
         double newBalance = getBalance() - amount;
         if (newBalance < -overdraftLimit) {
-            System.out.println("Withdrawal denied: exceeds overdraft limit of " + overdraftLimit);
-            return false;
+            throw new OverdraftExceededException(getBalance(), amount, overdraftLimit);
         }
         setBalance(newBalance);
-        return true;
     }
 
     void applyMontlhyFee(){
