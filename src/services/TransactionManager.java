@@ -1,6 +1,11 @@
 package services;
 
+import models.Account;
 import models.Transaction;
+import models.exceptions.InsufficientFundsException;
+import models.exceptions.InvalidAccountException;
+import models.exceptions.InvalidAmountException;
+import models.exceptions.OverdraftExceededException;
 
 /**
  * Manages transactions for bank accounts.
@@ -34,7 +39,7 @@ public class TransactionManager {
                 && !transaction.getAccountNumber().isEmpty()
                 && transaction.getAmount() > 0;
     }
-    Transaction[] filterById(String accountNumber) {
+    public Transaction[] filterById(String accountNumber) {
         if (accountNumber == null || accountNumber.isEmpty()) {
             return new Transaction[0];
         }
@@ -120,7 +125,7 @@ public class TransactionManager {
         double depositSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction : transactionsByAccountId) {
-            if (transaction.getType().equalsIgnoreCase("Deposit")) {
+            if (transaction.getType().equalsIgnoreCase("Deposit")||transaction.getType().equalsIgnoreCase("WIRE_TRANSFER_IN") ) {
                 depositSum += transaction.getAmount();
             }
         }
@@ -137,7 +142,7 @@ public class TransactionManager {
         double withdrawnSum = 0;
         Transaction[] transactionsByAccountId = filterById(accountNumber);
         for (Transaction transaction : transactionsByAccountId) {
-            if (transaction.getType().equalsIgnoreCase("Withdrawal")) {
+            if (transaction.getType().equalsIgnoreCase("Withdrawal")||transaction.getType().equalsIgnoreCase("WIRE_TRANSFER_OUT") ) {
                 withdrawnSum += transaction.getAmount();
             }
         }
@@ -151,6 +156,68 @@ public class TransactionManager {
      */
     public int getTransactionCount() {
         return transactionCount;
+    }
+
+    /**
+     * Performs a wire transfer between two accounts.
+     * Withdraws from source account and deposits to destination account.
+     * Records transactions for both accounts.
+     *
+     * @param accountManager the account manager to access accounts
+     * @param fromAccountNumber the source account number
+     * @param toAccountNumber the destination account number
+     * @param amount the amount to transfer
+     * @return true if transfer was successful, false otherwise
+     * @throws InvalidAccountException if either account is not found
+     * @throws InvalidAmountException if the amount is invalid
+     * @throws InsufficientFundsException if source account has insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit
+     */
+    public boolean wireTransfer(AccountManager accountManager, String fromAccountNumber, String toAccountNumber, double amount)
+            throws InvalidAccountException, InvalidAmountException, 
+                   InsufficientFundsException, OverdraftExceededException {
+        
+        if (fromAccountNumber.equals(toAccountNumber)) {
+            throw new InvalidAmountException("Cannot transfer to the same account!");
+        }
+        
+        Account fromAccount = accountManager.findAccount(fromAccountNumber);
+        Account toAccount = accountManager.findAccount(toAccountNumber);
+        
+        if (amount <= 0) {
+            throw new InvalidAmountException("Transfer amount must be greater than zero!");
+        }
+
+        boolean withdrawalSuccess = fromAccount.processTransaction(amount, "WITHDRAWAL");
+        
+        if (withdrawalSuccess) {
+            boolean depositSuccess = toAccount.processTransaction(amount, "DEPOSIT");
+            
+            if (depositSuccess) {
+                Transaction withdrawalTransaction = new Transaction(
+                    fromAccountNumber, 
+                    "WIRE_TRANSFER_OUT", 
+                    amount, 
+                    fromAccount.getBalance()
+                );
+                addTransaction(withdrawalTransaction);
+                
+                Transaction depositTransaction = new Transaction(
+                    toAccountNumber, 
+                    "WIRE_TRANSFER_IN", 
+                    amount, 
+                    toAccount.getBalance()
+                );
+                addTransaction(depositTransaction);
+                
+                return true;
+            } else {
+                fromAccount.processTransaction(amount, "DEPOSIT");
+                throw new InvalidAmountException("Transfer failed during deposit. Transaction rolled back.");
+            }
+        }
+        
+        return false;
     }
 
 }

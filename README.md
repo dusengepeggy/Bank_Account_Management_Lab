@@ -118,7 +118,7 @@ After successful compilation:
 java Main
 ```
 
-The main menu should appear:
+The Main menu should appear:
 
 ```
 =======================================
