@@ -1,3 +1,5 @@
+package models;
+
 import java.time.LocalDate;
 
 public class Transaction {
@@ -43,7 +45,7 @@ public class Transaction {
         return balanceAfter;
     }
 
-    void displayTransactionDetails(){
+    public void displayTransactionDetails(){
         System.out.println(transactionId + "  |  " + timestamp + "  |  " + type + "  |  " + amount+ "  |  " + balanceAfter );
 
     }
