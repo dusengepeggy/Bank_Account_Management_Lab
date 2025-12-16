@@ -17,3 +17,16 @@ git add .
 git commit -m "testing logs"
 git add .
 git commit -m "fixing testing"
+git add .
+git commit -m "git workflow documentation"
+git push origin feature/testing
+
+git checkout main
+git pull origin main 
+git checkout -b feature/documentation
+git cherry-pick 4e40730075f055d609c8532ef6a72d23115a0165
+git add .
+git commit -m "ft: git workflow documentation"
+git pull origin main
+git commit -m "fix: resolve conflict
+
